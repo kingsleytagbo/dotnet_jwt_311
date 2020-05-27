@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace jwt.Models
 {
-    public class Setting
+    public class Tenant
     {
         public string Name { get; set; }
         public string Key { get; set; }

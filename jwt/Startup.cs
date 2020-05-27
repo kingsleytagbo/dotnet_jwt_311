@@ -47,13 +47,13 @@ namespace jwt
 
             // Add the whole configuration object here.
             services.AddSingleton<IConfiguration>(Configuration);
-            services.Configure<List<Setting>>(Configuration.GetSection("Settings:Setting"));
+            services.Configure<List<Tenant>>(Configuration.GetSection("Tenants:Tenant"));
 
             /*
             ServiceProvider sp = services.BuildServiceProvider();
             IOptions<List<Setting>> tenants = sp.GetService<IOptions<List<Setting>>>();
             */
-            IOptions<List<Setting>> tenants = this.BuildTenantsFromServiceProvider(services);
+            IOptions<List<Tenant>> tenants = this.BuildTenantsFromServiceProvider(services);
 
             // Get access to the tenants defined in appsettings.json
             if (tenants != null)
@@ -91,8 +91,8 @@ namespace jwt
                    IssuerSigningKeyResolver = (string token, SecurityToken securityToken, string kid, TokenValidationParameters validationParameters) =>
                    {
                        List<SecurityKey> keys = new List<SecurityKey>();
-                       Setting setting = tenants.Value.Where(t => t.Key == kid).FirstOrDefault();
-                       var privateKey = ((setting != null) && !string.IsNullOrEmpty(setting.PrivateKey)) ? setting.PrivateKey : kid;
+                       Tenant tenant = tenants.Value.Where(t => t.Key == kid).FirstOrDefault();
+                       var privateKey = ((tenant != null) && !string.IsNullOrEmpty(tenant.PrivateKey)) ? tenant.PrivateKey : kid;
 
                        if (!string.IsNullOrEmpty(privateKey))
                        {
@@ -158,10 +158,10 @@ namespace jwt
             });
         }
 
-        private IOptions<List<Setting>> BuildTenantsFromServiceProvider(IServiceCollection services)
+        private IOptions<List<Tenant>> BuildTenantsFromServiceProvider(IServiceCollection services)
         {
             ServiceProvider sp = services.BuildServiceProvider();
-            IOptions<List<Setting>> tenants = sp.GetService<IOptions<List<Setting>>>();
+            IOptions<List<Tenant>> tenants = sp.GetService<IOptions<List<Tenant>>>();
             return tenants;
         }
     }

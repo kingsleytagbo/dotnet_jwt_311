@@ -24,22 +24,22 @@ namespace jwt.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly IOptions<List<Setting>> _settings;
+        private readonly IOptions<List<Tenant>> _tenants;
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(ILogger<AccountController> logger, IConfiguration configuration,
-            IOptions<List<Setting>> settings)
+            IOptions<List<Tenant>> tenants)
         {
             _logger = logger;
             _configuration = configuration;
-            _settings = settings;
+            _tenants = tenants;
         }
 
         [HttpGet]
         public IEnumerable<dynamic> Get()
         {
 
-        string[] Summaries = new[]
+        string[] Values = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
@@ -49,7 +49,7 @@ namespace jwt.Controllers
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                Value = Values[rng.Next(Values.Length)]
             })
             .ToArray();
         }
@@ -66,17 +66,16 @@ namespace jwt.Controllers
             {
                 var tenantId = authSite.ToString();
                 var user = Authenticate(new ITCC_User() { UserName = login });
-                Setting setting = null;
+                Tenant tenant = null;
 
                 if (user != null)
                 {
-                    if (this._settings != null)
+                    if (this._tenants != null)
                     {
-                        setting = this._settings.Value.Where(s => s.Key == tenantId).FirstOrDefault();
+                        tenant = this._tenants.Value.Where(s => s.Key == tenantId).FirstOrDefault();
+                        var token = CreateJWT(user, tenant, tenantId);
+                        response = Ok(new { token = token });
                     }
-
-                    var token = CreateJWT(user, setting, tenantId);
-                    response = Ok(new { token = token });
                 }
             }
 
@@ -109,9 +108,9 @@ namespace jwt.Controllers
         }
 
 
-        private string CreateJWT(ITCC_User userInfo, Setting setting, string tenantId)
+        private string CreateJWT(ITCC_User userInfo, Tenant tenant, string tenantId)
         {
-            var privateKey = ((setting != null) && !string.IsNullOrEmpty(setting.PrivateKey)) ? setting.PrivateKey : tenantId;
+            var privateKey = ((tenant != null) && !string.IsNullOrEmpty(tenant.PrivateKey)) ? tenant.PrivateKey : tenantId;
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(privateKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             DateTime jwtExpires = DateTime.Now.AddMinutes(30);
