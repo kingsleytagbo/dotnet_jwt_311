@@ -1,7 +1,6 @@
-# dotnet_jwt_311
-Json Web Token (JWT) Authentication in .NET Core 3.1
+# Json Web Token (JWT) Authentication using jQuery in .NET Core 3.1
 
-### How to call .NET Core JWT using jQuery
+### How to Login / Authenicate in .NET Core using a Json Web Token (JWT) and jQuery
 <code>
      <script type="text/javascript">
 
