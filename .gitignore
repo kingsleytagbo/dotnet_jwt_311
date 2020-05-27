@@ -5,7 +5,7 @@
 
 #Visual Studio build / obj files
 bin/
-obj/
+obj/*
 Debug/  
 
 # User-specific files
