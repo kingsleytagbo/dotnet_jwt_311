@@ -27,11 +27,6 @@ namespace jwt.Controllers
         private readonly IOptions<List<Setting>> _settings;
         private readonly ILogger<AccountController> _logger;
 
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         public AccountController(ILogger<AccountController> logger, IConfiguration configuration,
             IOptions<List<Setting>> settings)
         {
@@ -41,10 +36,16 @@ namespace jwt.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<dynamic> Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+
+        string[] Summaries = new[]
+        {
+            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+        };
+
+        var rng = new Random();
+            return Enumerable.Range(1, 5).Select(index => new 
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
@@ -63,7 +64,7 @@ namespace jwt.Controllers
 
             if (authSite.Any() != false)
             {
-                var tenantKey = authSite.ToString();
+                var tenantId = authSite.ToString();
                 var user = Authenticate(new ITCC_User() { UserName = login });
                 Setting setting = null;
 
@@ -71,10 +72,10 @@ namespace jwt.Controllers
                 {
                     if (this._settings != null)
                     {
-                        setting = this._settings.Value.Where(s => s.Key == tenantKey).FirstOrDefault();
+                        setting = this._settings.Value.Where(s => s.Key == tenantId).FirstOrDefault();
                     }
 
-                    var token = CreateJWT(user, setting, tenantKey);
+                    var token = CreateJWT(user, setting, tenantId);
                     response = Ok(new { token = token });
                 }
             }
@@ -82,10 +83,17 @@ namespace jwt.Controllers
             return response;
         }
 
-        private ITCC_User Authenticate(ITCC_User login)
+        /// <summary>
+        /// Authenticates a User / Account
+        /// </summary>
+        /// <returns>Return a valid user account or null if authentication is unsuccessful</returns>
+        private ITCC_User Authenticate(ITCC_User value)
         {
             ITCC_User user = null;
-            if (login.UserName == "kingsley")
+
+            // Validate that this user is authentic and is authorized to access your system
+            // TODO: Implement your own authetication logic
+            if (value.UserName == "kingsley")
             {
                 user = new ITCC_User { UserName = "Kingsley Tagbo", EmailAddress = "test.test@gmail.com" };
             }
@@ -101,9 +109,9 @@ namespace jwt.Controllers
         }
 
 
-        private string CreateJWT(ITCC_User userInfo, Setting setting, string tenantKey)
+        private string CreateJWT(ITCC_User userInfo, Setting setting, string tenantId)
         {
-            var privateKey = ((setting != null) && !string.IsNullOrEmpty(setting.PrivateKey)) ? setting.PrivateKey : tenantKey;
+            var privateKey = ((setting != null) && !string.IsNullOrEmpty(setting.PrivateKey)) ? setting.PrivateKey : tenantId;
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(privateKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             DateTime jwtExpires = DateTime.Now.AddMinutes(30);
@@ -114,7 +122,7 @@ namespace jwt.Controllers
 
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
-                tenantKey,
+                tenantId,
                 new[]
                     {
                         new Claim(ClaimTypes.Name, userInfo.UserName)
@@ -122,7 +130,7 @@ namespace jwt.Controllers
               expires: jwtExpires,
               signingCredentials: credentials);
 
-            token.Header.Add("kid", tenantKey);
+            token.Header.Add("kid", tenantId);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
