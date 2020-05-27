@@ -73,7 +73,7 @@ namespace jwt.Controllers
 
             // Validate that this user is authentic and is authorized to access your system
             // TODO: Implement your own authetication logic
-            if (value.UserName == "kingsley")
+            if (value.UserName == "Kingsley")
             {
                 user = new ITCC_User { UserName = "Kingsley Tagbo", EmailAddress = "test.test@gmail.com" };
             }
@@ -83,7 +83,7 @@ namespace jwt.Controllers
 
 
         [HttpPost("login")]
-        public IActionResult Login([FromHeader] string username)
+        public IActionResult Login([FromHeader] String username, [FromHeader] string password, [FromHeader] bool rememberme )
         {
             IActionResult response = Unauthorized();
 
@@ -91,6 +91,7 @@ namespace jwt.Controllers
             {
                 var headers = Request.Headers;
                 var authSite = headers["auth_site"];
+                Login login = new Login() { UserName = username, Password = password, RememberMe = rememberme };
 
                 Tenant tenant = null;
                 ITCC_User user = null;
@@ -99,7 +100,7 @@ namespace jwt.Controllers
 
                 if (authSite.Any() != false)
                 {
-                    user = Authenticate(new Login() { UserName = username });
+                    user = Authenticate(login);
                     if ((user != null) && (this._tenants != null))
                     {
                         tenantId = authSite.ToString();
