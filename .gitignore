@@ -6,6 +6,7 @@
 #Visual Studio build / obj files
 bin/
 obj/
+jwt/obj/
 
 # User-specific files
 *.rsuser
