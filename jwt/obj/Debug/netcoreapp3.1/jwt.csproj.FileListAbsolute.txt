@@ -14,6 +14,7 @@
 /Users/itcareercoach/Projects/github/dotnet_jwt_311/jwt/bin/Debug/netcoreapp3.1/Microsoft.IdentityModel.Tokens.dll
 /Users/itcareercoach/Projects/github/dotnet_jwt_311/jwt/bin/Debug/netcoreapp3.1/Newtonsoft.Json.dll
 /Users/itcareercoach/Projects/github/dotnet_jwt_311/jwt/bin/Debug/netcoreapp3.1/System.IdentityModel.Tokens.Jwt.dll
+/Users/itcareercoach/Projects/github/dotnet_jwt_311/jwt/obj/Debug/netcoreapp3.1/jwt.csprojAssemblyReference.cache
 /Users/itcareercoach/Projects/github/dotnet_jwt_311/jwt/obj/Debug/netcoreapp3.1/jwt.csproj.CoreCompileInputs.cache
 /Users/itcareercoach/Projects/github/dotnet_jwt_311/jwt/obj/Debug/netcoreapp3.1/jwt.MvcApplicationPartsAssemblyInfo.cache
 /Users/itcareercoach/Projects/github/dotnet_jwt_311/jwt/obj/Debug/netcoreapp3.1/jwt.AssemblyInfoInputs.cache
