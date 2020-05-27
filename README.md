@@ -5,9 +5,11 @@ Json Web Token (JWT) Authentication in .NET Core 3.1
 <code>
     <script type="text/javascript">
         $(document).ready(function () {
-            const data = { "login": "Kingsley" };
-
+            const public_key = "d62c03a2-57b6-4e14-8153-d05d3aa9ab10";
+            const data = { "UserName": "Kingsley", Password: "..gmail.com", RememberMe: true };
+            const login = { auth_site: public_key, login: data, username: data.UserName, password: data.Password, rememberme: data.RememberMe };
             const self = this;
+
             self.getUsers = function (jwt) {
                 $.ajax({
                     method: 'post',
@@ -18,10 +20,10 @@ Json Web Token (JWT) Authentication in .NET Core 3.1
                     }
                 })
                     .done(function (users) {
-                        console.log({ "success ...": users });
+                        console.log({ "getUsers > Success ...": users });
                     })
                     .fail(function (xhr, status, error) {
-                        console.log({ "getUsers error ...": xhr.responseText, status: status, error: error });
+                        console.log({ "getUsers > Error ...": xhr.responseText, status: status, error: error });
                     });
             }
 
@@ -29,20 +31,20 @@ Json Web Token (JWT) Authentication in .NET Core 3.1
                 $.ajax({
                     method: 'post',
                     url: "https://localhost:44395/account/login", //"https://localhost:44374/api/values/login",
-                    headers: { "login": "kingsley" ,  auth_site: "d62c03a2-57b6-4e14-8153-d05d3aa9ab10" },
-                    body: JSON.stringify(data)
+                    headers: login,
+                    body: JSON.stringify({})
                 });
 
             authenticate.done(function (jwt) {
-                console.log({ "authentication done ...": jwt });
+                console.log({ "Authentication done > ": jwt });
 
                 setTimeout(
                     function () {
                         self.getUsers(jwt);
                     }, 5000);
 
-            }).fail(function (msg) {
-                console.log(msg);
+            }).fail(function (xhr, status, error) {
+                console.log({ "Authentication > Error ...": xhr.responseText, status: status, error: error });
             });
 
         });
