@@ -7,6 +7,9 @@ Json Web Token (JWT) Authentication in .NET Core 3.1
 
         $(document).ready(function () {
 
+            // ### TODO: Change this to the url of your api server
+            const apiUrl = https://localhost:44395;
+
             const public_key = "d62c03a2-57b6-4e14-8153-d05d3aa9ab10";
 
             const data = { "UserName": "Kingsley", Password: "..gmail.com", RememberMe: true };
@@ -15,10 +18,10 @@ Json Web Token (JWT) Authentication in .NET Core 3.1
 
             const self = this;
 
-            self.getUsers = function (jwt) {
-                $.ajax({
+            self.getUsers = function (jwt, url) {
+                return $.ajax({
                     method: 'post',
-                    url: "https://localhost:44395/account/getusers",
+                    url: url + "/account/getusers",
                     body: JSON.stringify({}),
                     headers: {
                         'Authorization': 'Bearer ' + jwt.token
@@ -32,13 +35,14 @@ Json Web Token (JWT) Authentication in .NET Core 3.1
                     });
             }
 
-            const authenticate =
-                $.ajax({
-                    method: 'post',
-                    url: "https://localhost:44395/account/login", //"https://localhost:44374/api/values/login",
-                    headers: login,
-                    body: JSON.stringify({})
-                });
+            const authenticate = function(url, login) {
+                    $.ajax({
+                        method: 'post',
+                        url: url + "/account/login", 
+                        headers: login,
+                        body: JSON.stringify({})
+                    });
+                }
 
             authenticate.done(function (jwt) {
                 console.log({ "Authentication done > ": jwt });
