@@ -54,39 +54,20 @@ namespace jwt.Controllers
             .ToArray();
         }
 
-        [HttpPost("login")]
-        public IActionResult Login([FromHeader] string login)
+
+        [HttpPost("getusers")]
+        [Authorize]
+        public ActionResult<IEnumerable<string>> GetUsers()
         {
-            IActionResult response = Unauthorized();
-
-            var headers = Request.Headers;
-            var authSite = headers["auth_site"];
-
-            if (authSite.Any() != false)
-            {
-                var tenantId = authSite.ToString();
-                var user = Authenticate(new ITCC_User() { UserName = login });
-                Tenant tenant = null;
-
-                if (user != null)
-                {
-                    if (this._tenants != null)
-                    {
-                        tenant = this._tenants.Value.Where(s => s.Key == tenantId).FirstOrDefault();
-                        var token = CreateJWT(user, tenant, tenantId);
-                        response = Ok(new { token = token });
-                    }
-                }
-            }
-
-            return response;
+            return Ok(new string[] { "value1", "value2", "value3", "value4", "value5" });
         }
+
 
         /// <summary>
         /// Authenticates a User / Account
         /// </summary>
         /// <returns>Return a valid user account or null if authentication is unsuccessful</returns>
-        private ITCC_User Authenticate(ITCC_User value)
+        private ITCC_User Authenticate(Login value)
         {
             ITCC_User user = null;
 
@@ -100,11 +81,41 @@ namespace jwt.Controllers
             return user;
         }
 
-        [HttpPost("getusers")]
-        [Authorize]
-        public ActionResult<IEnumerable<string>> GetUsers()
+
+        [HttpPost("login")]
+        public IActionResult Login([FromHeader] string username)
         {
-            return Ok(new string[] { "value1", "value2", "value3", "value4", "value5" });
+            IActionResult response = Unauthorized();
+
+            try
+            {
+                var headers = Request.Headers;
+                var authSite = headers["auth_site"];
+
+                Tenant tenant = null;
+                ITCC_User user = null;
+                string tenantId = null;
+                string token = null;
+
+                if (authSite.Any() != false)
+                {
+                    user = Authenticate(new Login() { UserName = username });
+                    if ((user != null) && (this._tenants != null))
+                    {
+                        tenantId = authSite.ToString();
+                        tenant = this._tenants.Value.Where(s => s.Key == tenantId).FirstOrDefault();
+                        token = CreateJWT(user, tenant, tenantId);
+                        response = Ok(new { token = token });
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine(ex.ToString());
+            }
+
+            return response;
         }
 
 

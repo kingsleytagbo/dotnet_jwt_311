@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 
 namespace jwt.Models
 {
-    public class ITCC_User
+    public class Login
     {
-        public int ITCC_UserID;
         public string UserName;
-        public string EmailAddress;
         public string Password;
+        public bool RememberMe;
     }
 }
