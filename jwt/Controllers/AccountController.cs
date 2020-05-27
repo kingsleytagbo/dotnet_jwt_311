@@ -105,7 +105,7 @@ namespace jwt.Controllers
                     {
                         tenantId = authSite.ToString();
                         tenant = this._tenants.Value.Where(s => s.Key == tenantId).FirstOrDefault();
-                        token = CreateJWT(user, tenant, tenantId);
+                        token = CreateJWT(user, tenant, tenantId, login.RememberMe);
                         response = Ok(new { token = token });
 
                     }
@@ -120,15 +120,18 @@ namespace jwt.Controllers
         }
 
 
-        private string CreateJWT(ITCC_User userInfo, Tenant tenant, string tenantId)
+        private string CreateJWT(ITCC_User userInfo, Tenant tenant, string tenantId, bool rememberMe)
         {
             var privateKey = ((tenant != null) && !string.IsNullOrEmpty(tenant.PrivateKey)) ? tenant.PrivateKey : tenantId;
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(privateKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             DateTime jwtExpires = DateTime.Now.AddMinutes(30);
-            int jwtDuration = 30;
+            int jwtDuration = 15;
 
-            int.TryParse(_configuration["Jwt:Expires"], out jwtDuration);
+            if (rememberMe)
+            {
+                int.TryParse(_configuration["Jwt:Expires"], out jwtDuration);
+            }
             jwtExpires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(jwtDuration));
 
             var token = new JwtSecurityToken(
